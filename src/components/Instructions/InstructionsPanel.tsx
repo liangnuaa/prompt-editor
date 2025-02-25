@@ -23,7 +23,14 @@ import PromptModal from '../PromptModal/PromptModal';
 
 const InstructionsPanel = () => {
   // Use our context
-  const { instructions, updateInstructions, generatePrompt, clearProject, files } = usePrompt();
+  const { 
+    currentProject, 
+    updateInstructions, 
+    generatePrompt, 
+    fileStructure,
+    getChildNodes,
+    getNodeById
+  } = usePrompt();
   
   // State for modal
   const [modalOpen, setModalOpen] = useState(false);
@@ -39,11 +46,38 @@ const InstructionsPanel = () => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const textFieldRef = useRef<HTMLInputElement>(null);
   
+  // Get all file nodes for autocomplete
+  const getAllFileNames = useMemo(() => {
+    const fileNames: string[] = [];
+    
+    // Recursive function to get all file nodes
+    const collectFileNames = (nodeId: string, path: string = '') => {
+      const node = getNodeById(nodeId);
+      if (!node) return;
+      
+      const nodePath = path ? `${path}/${node.name}` : node.name;
+      
+      if (node.type === 'file') {
+        fileNames.push(nodePath);
+      } else {
+        // It's a folder, process its children
+        const children = getChildNodes(nodeId);
+        children.forEach(child => collectFileNames(child.id, nodePath));
+      }
+    };
+    
+    // Get root nodes and process them
+    const rootNodes = getChildNodes(null);
+    rootNodes.forEach(node => collectFileNames(node.id));
+    
+    return fileNames;
+  }, [fileStructure, getChildNodes, getNodeById]);
+  
   // Function to handle file name autocompletion
   const handleAutoComplete = (selectedFile: string) => {
     // Find the current word being typed
-    const beforeCursor = instructions.substring(0, cursorPosition);
-    const afterCursor = instructions.substring(cursorPosition);
+    const beforeCursor = currentProject?.instructions?.substring(0, cursorPosition) || '';
+    const afterCursor = currentProject?.instructions?.substring(cursorPosition) || '';
     
     // Find the start of the current word
     let wordStart = beforeCursor.lastIndexOf(' ');
@@ -78,8 +112,8 @@ const InstructionsPanel = () => {
       const currentWord = currentWordMatch[0].toLowerCase();
       
       // Filter files that match the current word
-      const matchedFiles = files.filter(file => 
-        file.toLowerCase().includes(currentWord)
+      const matchedFiles = getAllFileNames.filter(fileName => 
+        fileName.toLowerCase().includes(currentWord)
       );
       
       if (matchedFiles.length > 0) {
@@ -114,6 +148,7 @@ const InstructionsPanel = () => {
     const lineHeight = 20; // Approximate line height
     
     // Calculate cursor position relative to the text field
+    const instructions = currentProject?.instructions || '';
     const lines = instructions.substring(0, cursorPosition).split('\n').length - 1;
     const top = textFieldRect.top + 12 + (lines * lineHeight); // Adjust 12px for padding
     
@@ -124,7 +159,7 @@ const InstructionsPanel = () => {
       top: top,
       width: textFieldRect.width - 24 // Adjust 24px for padding (12px each side)
     };
-  }, [suggestionsAnchorEl, cursorPosition, instructions]);
+  }, [suggestionsAnchorEl, cursorPosition, currentProject?.instructions]);
 
   // Generate and show prompt
   const handleGeneratePrompt = () => {
@@ -135,7 +170,7 @@ const InstructionsPanel = () => {
 
   // Handle clear project
   const handleClearProject = () => {
-    clearProject();
+    updateInstructions('');
     setClearDialogOpen(false);
   };
 
@@ -154,7 +189,7 @@ const InstructionsPanel = () => {
           multiline
           fullWidth
           variant="outlined"
-          value={instructions}
+          value={currentProject?.instructions || ''}
           onChange={handleInstructionsChange}
           placeholder="Enter your instructions for the AI..."
           minRows={15}
@@ -223,16 +258,15 @@ const InstructionsPanel = () => {
         open={clearDialogOpen}
         onClose={() => setClearDialogOpen(false)}
       >
-        <DialogTitle>Clear Project</DialogTitle>
+        <DialogTitle>Clear Instructions</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to clear the entire project? This will delete all files, content, and instructions.
-            This action cannot be undone.
+            Are you sure you want to clear all instructions? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setClearDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleClearProject} color="error">Clear Project</Button>
+          <Button onClick={handleClearProject} color="error" variant="contained">Clear Instructions</Button>
         </DialogActions>
       </Dialog>
     </div>

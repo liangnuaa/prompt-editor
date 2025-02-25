@@ -28,9 +28,11 @@ const KeyboardShortcuts = () => {
   const { 
     addFile, 
     generatePrompt, 
-    selectedFile, 
+    selectedNodeId,
     updateFileContent, 
-    fileContents 
+    getNodeById,
+    getFileContent,
+    currentProject
   } = usePrompt();
 
   // Define keyboard shortcuts
@@ -40,7 +42,12 @@ const KeyboardShortcuts = () => {
       description: 'Create new file',
       action: () => {
         const fileName = prompt('Enter file name:');
-        if (fileName) addFile(fileName);
+        if (fileName) {
+          // Add file to root level (null parent) or to selected folder
+          const selectedNode = selectedNodeId ? getNodeById(selectedNodeId) : null;
+          const parentId = selectedNode?.type === 'folder' ? selectedNodeId : null;
+          addFile(fileName, parentId);
+        }
       }
     },
     {
@@ -52,9 +59,12 @@ const KeyboardShortcuts = () => {
       key: 'Ctrl+S',
       description: 'Save current file',
       action: () => {
-        if (selectedFile) {
-          // Flash success message or handle this however you want
-          console.log(`${selectedFile} saved`);
+        if (selectedNodeId) {
+          const node = getNodeById(selectedNodeId);
+          if (node && node.type === 'file') {
+            // Flash success message or handle this however you want
+            console.log(`${node.name} saved`);
+          }
         }
       }
     },
@@ -62,34 +72,39 @@ const KeyboardShortcuts = () => {
       key: 'Ctrl+/',
       description: 'Comment/uncomment line',
       action: () => {
-        if (selectedFile) {
-          const content = fileContents[selectedFile] || '';
-          const lines = content.split('\n');
-          const cursorPosition = document.activeElement && 'selectionStart' in document.activeElement 
-            ? (document.activeElement as HTMLTextAreaElement).selectionStart
-            : 0;
-          
-          // Find current line
-          let charCount = 0;
-          let lineIndex = 0;
-          
-          for (let i = 0; i < lines.length; i++) {
-            charCount += lines[i].length + 1; // +1 for newline
-            if (charCount > cursorPosition) {
-              lineIndex = i;
-              break;
+        if (selectedNodeId) {
+          const node = getNodeById(selectedNodeId);
+          if (node && node.type === 'file') {
+            const content = getFileContent(selectedNodeId);
+            if (content) {
+              const lines = content.split('\n');
+              const cursorPosition = document.activeElement && 'selectionStart' in document.activeElement 
+                ? (document.activeElement as HTMLTextAreaElement).selectionStart
+                : 0;
+              
+              // Find current line
+              let charCount = 0;
+              let lineIndex = 0;
+              
+              for (let i = 0; i < lines.length; i++) {
+                charCount += lines[i].length + 1; // +1 for newline
+                if (charCount > cursorPosition) {
+                  lineIndex = i;
+                  break;
+                }
+              }
+              
+              // Toggle comment on current line
+              const line = lines[lineIndex];
+              if (line.trimStart().startsWith('//')) {
+                lines[lineIndex] = line.replace(/^\s*\/\/\s?/, '');
+              } else {
+                lines[lineIndex] = line.replace(/^(\s*)/, '$1// ');
+              }
+              
+              updateFileContent(selectedNodeId, lines.join('\n'));
             }
           }
-          
-          // Toggle comment on current line
-          const line = lines[lineIndex];
-          if (line.trimStart().startsWith('//')) {
-            lines[lineIndex] = line.replace(/^\s*\/\/\s?/, '');
-          } else {
-            lines[lineIndex] = line.replace(/^(\s*)/, '$1// ');
-          }
-          
-          updateFileContent(selectedFile, lines.join('\n'));
         }
       }
     },
@@ -143,7 +158,7 @@ const KeyboardShortcuts = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedFile, fileContents]);
+  }, [selectedNodeId, currentProject]);
 
   return (
     <>

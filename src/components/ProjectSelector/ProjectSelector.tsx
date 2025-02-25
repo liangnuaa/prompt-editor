@@ -29,12 +29,11 @@ import { usePrompt } from '../../context/PromptContext';
 const ProjectSelector = () => {
   const { 
     projects, 
-    currentProjectId, 
-    projectName,
+    currentProject,
     createProject, 
-    renameProject, 
+    updateProjectName, 
     deleteProject, 
-    switchProject, 
+    selectProject, 
     exportProject,
     importProject
   } = usePrompt();
@@ -72,9 +71,11 @@ const ProjectSelector = () => {
   };
 
   const openRenameDialog = () => {
-    setNewProjectName(projectName);
-    setRenameDialogOpen(true);
-    handleCloseMenu();
+    if (currentProject) {
+      setNewProjectName(currentProject.name);
+      setRenameDialogOpen(true);
+      handleCloseMenu();
+    }
   };
 
   const openDeleteDialog = () => {
@@ -96,23 +97,21 @@ const ProjectSelector = () => {
   };
 
   const handleRenameProject = () => {
-    if (newProjectName.trim() && currentProjectId) {
-      renameProject(currentProjectId, newProjectName);
+    if (newProjectName.trim() && currentProject) {
+      updateProjectName(currentProject.id, newProjectName);
       setRenameDialogOpen(false);
     }
   };
 
   const handleDeleteProject = () => {
-    if (currentProjectId) {
-      deleteProject(currentProjectId);
+    if (currentProject) {
+      deleteProject(currentProject.id);
       setDeleteDialogOpen(false);
     }
   };
 
   const handleExportProject = () => {
-    if (currentProjectId) {
-      exportProject(currentProjectId);
-    }
+    exportProject();
     handleCloseMenu();
   };
 
@@ -127,8 +126,13 @@ const ProjectSelector = () => {
       reader.onload = (e) => {
         const content = e.target?.result as string;
         if (content) {
-          importProject(content);
-          setImportDialogOpen(false);
+          try {
+            const projectData = JSON.parse(content);
+            importProject(projectData);
+            setImportDialogOpen(false);
+          } catch (error) {
+            alert('Failed to import project: ' + (error instanceof Error ? error.message : 'Unknown error'));
+          }
         }
       };
       reader.readAsText(file);
@@ -136,7 +140,7 @@ const ProjectSelector = () => {
   };
 
   const handleSwitchProject = (id: string) => {
-    switchProject(id);
+    selectProject(id);
     handleCloseMenu();
   };
 
@@ -149,7 +153,7 @@ const ProjectSelector = () => {
         size="small"
         sx={{ mr: 1, textTransform: 'none' }}
       >
-        {projectName}
+        {currentProject?.name || 'Select Project'}
       </Button>
 
       <Menu
@@ -161,7 +165,7 @@ const ProjectSelector = () => {
         {projects.map((project) => (
           <MenuItem 
             key={project.id}
-            selected={project.id === currentProjectId}
+            selected={currentProject ? project.id === currentProject.id : false}
             onClick={() => handleSwitchProject(project.id)}
           >
             {project.name}
@@ -178,14 +182,14 @@ const ProjectSelector = () => {
           <ListItemText>New Project</ListItemText>
         </MenuItem>
 
-        <MenuItem onClick={openRenameDialog} disabled={projects.length === 0}>
+        <MenuItem onClick={openRenameDialog} disabled={!currentProject}>
           <ListItemIcon>
             <EditIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Rename Project</ListItemText>
         </MenuItem>
 
-        <MenuItem onClick={openDeleteDialog} disabled={projects.length <= 1}>
+        <MenuItem onClick={openDeleteDialog} disabled={projects.length <= 1 || !currentProject}>
           <ListItemIcon>
             <DeleteIcon fontSize="small" />
           </ListItemIcon>
@@ -194,7 +198,7 @@ const ProjectSelector = () => {
 
         <Divider />
 
-        <MenuItem onClick={handleExportProject} disabled={projects.length === 0}>
+        <MenuItem onClick={handleExportProject} disabled={!currentProject}>
           <ListItemIcon>
             <ExportIcon fontSize="small" />
           </ListItemIcon>
@@ -217,7 +221,7 @@ const ProjectSelector = () => {
           </IconButton>
         </Tooltip>
         <Tooltip title="Export Project">
-          <IconButton onClick={handleExportProject} size="small" disabled={projects.length === 0}>
+          <IconButton onClick={handleExportProject} size="small" disabled={!currentProject}>
             <ExportIcon fontSize="small" />
           </IconButton>
         </Tooltip>
@@ -244,7 +248,7 @@ const ProjectSelector = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleCreateProject}>Create</Button>
+          <Button onClick={handleCreateProject} variant="contained">Create</Button>
         </DialogActions>
       </Dialog>
 
@@ -264,7 +268,7 @@ const ProjectSelector = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setRenameDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleRenameProject}>Rename</Button>
+          <Button onClick={handleRenameProject} variant="contained">Rename</Button>
         </DialogActions>
       </Dialog>
 
@@ -273,42 +277,48 @@ const ProjectSelector = () => {
         <DialogTitle>Delete Project</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete "{projectName}"? This action cannot be undone.
+            Are you sure you want to delete the project "{currentProject?.name}"? This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteProject} color="error">Delete</Button>
+          <Button onClick={handleDeleteProject} color="error" variant="contained">Delete</Button>
         </DialogActions>
       </Dialog>
 
-      {/* Import Project */}
+      {/* Import Project Dialog */}
       <Dialog open={importDialogOpen} onClose={() => setImportDialogOpen(false)}>
         <DialogTitle>Import Project</DialogTitle>
         <DialogContent>
           <Typography paragraph>
-            Select a project JSON file to import.
+            Select a project file (.json) to import:
           </Typography>
-          <Button
-            variant="outlined"
-            component="label"
-            startIcon={<ImportIcon />}
-            onClick={handleImportClick}
-          >
-            Select File
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".json"
-              style={{ display: 'none' }}
-              onChange={handleFileSelected}
-            />
-          </Button>
+          <input
+            type="file"
+            accept=".json"
+            onChange={handleFileSelected}
+            style={{ display: 'block', marginTop: '8px' }}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setImportDialogOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={handleImportClick}
+            variant="contained"
+          >
+            Browse Files
+          </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Hidden file input for import */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        accept=".json"
+        onChange={handleFileSelected}
+      />
     </Box>
   );
 };
