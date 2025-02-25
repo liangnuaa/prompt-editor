@@ -2,26 +2,60 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Prompt Editor</title>
+  <title>Page Not Found - Prompt Editor</title>
   <script type="text/javascript">
-    // Single Page Apps for GitHub Pages
-    // https://github.com/rafrex/spa-github-pages
-    
-    // This script takes the current URL and creates a redirect 
-    // that preserves the path and query parameters
-    var pathSegmentsToKeep = 1; // We have 1 segment in the path: "prompt-editor"
-
-    var l = window.location;
-    l.replace(
-      l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-      l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
-      l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
-      (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-      l.hash
-    );
+    // Simple redirect to home page after a brief delay
+    setTimeout(function() {
+      window.location.href = '/prompt-editor/';
+    }, 3000);
   </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      line-height: 1.6;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      color: #d32f2f;
+    }
+    .links {
+      margin-top: 20px;
+    }
+    a {
+      color: #1976d2;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-  <h2>Redirecting to Prompt Editor...</h2>
+  <div class="container">
+    <h1>Page Not Found</h1>
+    <p>Sorry, the page you were looking for does not exist.</p>
+    <p>You will be redirected to the home page in 3 seconds, or you can click one of the links below.</p>
+    
+    <div class="links">
+      <p><a href="/prompt-editor/">Go to main application</a></p>
+      <p><a href="/prompt-editor/test.html">Go to test page</a></p>
+      <p><a href="/prompt-editor/standalone.html">Go to standalone page</a></p>
+    </div>
+    
+    <p>Current URL: <code id="current-url"></code></p>
+  </div>
+
+  <script>
+    document.getElementById('current-url').textContent = window.location.href;
+  </script>
 </body>
 </html> 
