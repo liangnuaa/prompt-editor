@@ -44,35 +44,11 @@
       <p><small>If the app doesn't load within 10 seconds, <a href="/prompt-editor/standalone.html">try the standalone version</a></small></p>
     </div>
     
-    <div id="root"></div>
+    <div id="root">
+      <script type="module" src="./src/main.tsx"></script>
+    </div>
     
-    <!-- Add a helpful error handler -->
-    <script>
-      // Handle load errors
-      window.addEventListener('error', function(e) {
-        console.error('Loading error:', e);
-        document.getElementById('loading').innerHTML = `
-          <h2>Error Loading Application</h2>
-          <p>There was a problem loading the Prompt Editor application.</p>
-          <p>Error: ${e.message}</p>
-          <p><a href="/prompt-editor/standalone.html">Try the standalone version</a></p>
-        `;
-      }, true);
-      
-      // Set a timeout to show an error if the app doesn't load
-      setTimeout(function() {
-        if (document.getElementById('loading').style.display !== 'none') {
-          document.getElementById('loading').innerHTML = `
-            <h2>Application Load Timeout</h2>
-            <p>The Prompt Editor application is taking too long to load.</p>
-            <p><a href="/prompt-editor/standalone.html">Try the standalone version</a></p>
-            <p><a href="/prompt-editor/test.html">Go to test page</a></p>
-          `;
-        }
-      }, 10000);
-    </script>
     
-    <script type="module" src="/src/main.tsx"></script>
     
     <!-- Hide loading screen once app is loaded -->
     <script>
