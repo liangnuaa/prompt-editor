@@ -1,86 +1,115 @@
 # Prompt Editor
 
-A web-based editor for creating, managing, and generating AI prompts from project structures and file contents.
+A modern, user-friendly editor for creating and managing prompts for AI models. This tool aims to simplify the process of creating, testing, and refining prompts for AI systems.
 
 ## Features
 
-- **Project Management**: Create, rename, switch between, and delete multiple projects
-- **Project Structure Panel**: Add, rename, and remove files in your project structure with drag-and-drop reordering
-- **File Content Panel**: Edit the content of selected files with syntax highlighting
-- **Instructions Panel**: Add instructions for AI models with file name autocomplete
-- **Prompt Generation**: Generate and copy a complete prompt including instructions, project structure, and file contents
-- **Import/Export**: Save and load projects to/from JSON files
-- **Local Storage**: Project data is automatically saved in your browser's local storage
-- **Dark Mode**: Toggle between light and dark themes for comfortable viewing
-- **Responsive Design**: Optimized for both desktop and mobile use
-- **Keyboard Shortcuts**: Improve productivity with keyboard commands for common actions
+- **Project Management**:
+  - Create and manage multiple prompt projects
+  - Export and import projects for sharing or backup
+  - Organize files with nested folder structure
+
+- **File Management**:
+  - Create, edit, rename, and delete files
+  - Drag and drop functionality for reordering files and moving between folders
+  - Nested folder support for better organization of complex projects
+  - File name autocomplete in the Instructions panel 
+
+- **Content Editing**:
+  - Syntax highlighting for multiple languages
+  - Line numbers and code formatting
+  - Auto-indentation and bracket matching
+
+- **Instructions Panel**:
+  - Dedicated space for writing instructions for the AI model
+  - Smart file path detection and autocomplete
+  - Support for custom formatting directives
+
+- **Prompt Generation**:
+  - Generate formatted prompts combining files and instructions
+  - Preview generated prompts before submission
+  - One-click copy to clipboard
 
 ## Upcoming Features
 
-- Project templates
-- Enhanced UI/UX refinements
-- Collaborative editing
-- Advanced prompt configuration options
+- **Collaborative Editing**:
+  - Real-time collaboration with team members
+  - Comments and annotations on prompts
+
+- **Advanced Prompt Configuration**:
+  - Parameter settings (temperature, top-p, etc.)
+  - Custom stop sequences
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js (v14 or newer)
-- npm
-
 ### Installation
 
-1. Clone this repository
-2. Navigate to the project directory
-3. Install dependencies:
-
 ```bash
+git clone https://github.com/yourusername/prompt-editor.git
+cd prompt-editor
 npm install
-```
-
-4. Start the development server:
-
-```bash
 npm run dev
 ```
 
-5. Open your browser and navigate to `http://localhost:5173` (or the URL shown in your terminal)
+### Usage
 
-## Usage
+1. **Create a New Project**: Use the project menu to create a new project
+2. **Add Files and Folders**: Create folders to organize your content and add files to your project
+3. **Edit File Content**: Click on a file to edit its content with syntax highlighting
+4. **Write Instructions**: Use the instructions panel to provide context and directions for the AI
+5. **Generate Prompt**: Click the "Generate Prompt" button to combine your files and instructions
+6. **Copy and Use**: Copy the generated prompt to use with your preferred AI model
 
-1. Use the project menu in the header to create and manage projects
-2. Add files to your project using the "Add File" button in the Project Structure panel
-3. Drag and drop files to reorder them in the project structure
-4. Rename or delete files using the file options menu (three dots icon)
-5. Select a file to view and edit its content in the File Content panel with syntax highlighting
-6. Use keyboard shortcuts (press '?' to view available shortcuts) for faster workflow
-7. Toggle between light and dark modes using the theme toggle button
-8. Add your AI instructions in the Instructions panel with file name autocomplete
-9. Click the "Generate & Copy Prompt" button to create and copy your complete prompt
-10. Export your project to share it or import projects created by others
+### Folder Structure
 
-## Keyboard Shortcuts
+The nested folder structure allows you to organize your files in a hierarchical manner:
 
-- **?**: Show keyboard shortcuts dialog
-- **Ctrl+N**: Create a new file
-- **Ctrl+G**: Generate prompt
-- **Ctrl+S**: Save current file
-- **Ctrl+/**: Comment/uncomment line
+- Create folders and subfolders to group related files
+- Drag and drop files between folders for easy organization
+- Expand and collapse folders to focus on specific parts of your project
 
 ## Development Roadmap
 
-- **Phase 1**: ✅ Basic structure with panels and file management
-- **Phase 2**: ✅ Prompt generation functionality and local storage
-- **Phase 3**: ✅ Advanced features (project management, autocomplete, file renaming, syntax highlighting)
-- **Phase 4**: ✅ UI/UX enhancements (dark mode, responsive design, keyboard shortcuts, drag-and-drop)
-- **Phase 5**: Testing and refinement
+- ✅ **Phase 1**: Basic Functionality
+  - Project creation and management
+  - File management
+  - Content editing
+  - Instructions panel
 
-## Built With
+- ✅ **Phase 2**: Enhanced Editing Experience
+  - Syntax highlighting
+  - Improved UI/UX
+  - Keyboard shortcuts
+  - File exploration
+  
+- ✅ **Phase 3**: Project Management
+  - Project export/import
+  - File names autocomplete
+  - Enhanced file management
+  - Smart content editing
+  
+- ✅ **Phase 4**: UI/UX Enhancements
+  - Responsive design
+  - Dark mode
+  - Keyboard shortcuts
+  - Drag and drop reordering
+  
+- ✅ **Phase 5**: Nested Folders
+  - Hierarchical file organization
+  - Folder creation and management
+  - Drag and drop between folders
+  - Enhanced navigation
 
-- [React](https://reactjs.org/) - UI library
-- [TypeScript](https://www.typescriptlang.org/) - Type safety
-- [Material-UI](https://mui.com/) - Component library
-- [Vite](https://vitejs.dev/) - Build tool
-- [React Syntax Highlighter](https://github.com/react-syntax-highlighter/react-syntax-highlighter) - Code syntax highlighting
-- [React Beautiful DnD](https://github.com/atlassian/react-beautiful-dnd) - Drag and drop functionality
+- 🔄 **Phase 6**: Testing and Refinement
+  - Comprehensive testing
+  - Bug fixing
+  - Performance optimization
+  - User feedback implementation
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
